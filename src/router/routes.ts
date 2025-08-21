@@ -31,6 +31,43 @@ const routes: RouteRecordRaw[] = [
         component: () => import("pages/TemplatesPage.vue"),
         name: "Templates",
       },
+      {
+        path: "/forms",
+        name: "FormsList",
+        component: () => import("pages/FormsList.vue"),
+        meta: { title: "Custom Forms" },
+      },
+      {
+        path: "/forms/create",
+        name: "CreateForm",
+        component: () => import("components/form/CustomFormBuilder.vue"),
+        meta: { title: "Create Form" },
+      },
+      // {
+      //   path: "/forms/:id/edit",
+      //   name: "EditForm",
+      //   component: () => import("components/form/CustomFormBuilder.vue"),
+      //   meta: { title: "Edit Form" },
+      // },
+      {
+        path: "/forms/:id/fill",
+        name: "FillForm",
+        component: () => import("pages/FormFill.vue"),
+        meta: { title: "Fill Form" },
+      },
+      {
+        path: "/forms/:id/view",
+        name: "ViewForm",
+        component: () => import("pages/FormFill.vue"),
+        meta: { title: "View Form" },
+        props: { readonly: true },
+      },
+      {
+        path: "/forms/:id/submissions",
+        name: "FormSubmissions",
+        component: () => import("pages/FormSubmissions.vue"),
+        meta: { title: "Form Submissions" },
+      },
     ],
   },
 
