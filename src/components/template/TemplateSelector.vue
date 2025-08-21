@@ -54,8 +54,10 @@ import { ref, computed, onMounted } from "vue";
 import { useQuasar } from "quasar";
 import { useTemplateStore } from "src/stores/template";
 import { InvoiceTemplate } from "src/types/invoice";
-import TemplateUploader from "./TemplateUploader.vue";
 import TemplateHeader from "./TemplateHeader.vue";
+import TemplateUploader from "src/components/template/TemplateUploader.vue";
+import PreviewDialog from "../PreviewDialog.vue";
+import TemplateCard from "./TemplateCard.vue";
 
 const $q = useQuasar();
 const templateStore = useTemplateStore();
@@ -71,10 +73,10 @@ const selectedTemplate = computed(() => templateStore.selectedTemplate);
 
 const selectTemplate = (template: InvoiceTemplate) => {
   templateStore.selectTemplate(template);
-  $q.notify({
-    type: "positive",
-    message: `Template "${template.name}" selected`,
-  });
+  // $q.notify({
+  //   type: "positive",
+  //   message: `Template "${template.name}" selected`,
+  // });
 };
 
 const previewTemplateHandler = async (template: InvoiceTemplate) => {
@@ -92,10 +94,10 @@ const previewTemplateHandler = async (template: InvoiceTemplate) => {
     showPreviewDialog.value = true;
   } catch (error) {
     console.error("Error loading template for preview:", error);
-    $q.notify({
-      type: "negative",
-      message: "Failed to load template for preview",
-    });
+    // $q.notify({
+    //   type: "negative",
+    //   message: "Failed to load template for preview",
+    // });
   } finally {
     loadingPreview.value = false;
   }
@@ -125,33 +127,33 @@ const closePreview = () => {
 };
 
 const confirmDeleteTemplate = (template: InvoiceTemplate) => {
-  $q.dialog({
-    title: "Delete Template",
-    message: `Are you sure you want to delete "${template.name}"? This action cannot be undone.`,
-    cancel: true,
-    persistent: true,
-    color: "negative",
-  }).onOk(async () => {
-    try {
-      await templateStore.deleteTemplate(template.id);
-      $q.notify({
-        type: "positive",
-        message: "Template deleted successfully",
-      });
-    } catch (error) {
-      $q.notify({
-        type: "negative",
-        message: "Error deleting template",
-      });
-    }
-  });
+  // $q.dialog({
+  //   title: "Delete Template",
+  //   message: `Are you sure you want to delete "${template.name}"? This action cannot be undone.`,
+  //   cancel: true,
+  //   persistent: true,
+  //   color: "negative",
+  // }).onOk(async () => {
+  //   try {
+  //     await templateStore.deleteTemplate(template.id);
+  //     $q.notify({
+  //       type: "positive",
+  //       message: "Template deleted successfully",
+  //     });
+  //   } catch (error) {
+  //     $q.notify({
+  //       type: "negative",
+  //       message: "Error deleting template",
+  //     });
+  //   }
+  // });
 };
 
 const onTemplateUploaded = () => {
-  $q.notify({
-    type: "positive",
-    message: "Template uploaded successfully!",
-  });
+  // $q.notify({
+  //   type: "positive",
+  //   message: "Template uploaded successfully!",
+  // });
 };
 
 onMounted(() => {

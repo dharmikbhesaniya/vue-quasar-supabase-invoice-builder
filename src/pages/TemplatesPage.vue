@@ -2,11 +2,7 @@
   <q-page class="q-pa-md">
     <div class="text-h4 q-mb-md">Template Management</div>
 
-    <!-- <div class="row q-gutter-md">
-      <div class="col-12 col-md-8"> -->
     <TemplateSelector />
-    <!-- </div>
-    </div> -->
   </q-page>
 </template>
 

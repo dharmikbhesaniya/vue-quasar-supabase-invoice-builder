@@ -1,9 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { boot } from "quasar/wrappers";
 
-console.log("process.env.SUPABASE_URL", process.env.SUPABASE_URL);
-console.log("process.env.SUPABASE_ANON_KEY", process.env.SUPABASE_ANON_KEY);
-
 const supabaseUrl = process.env.SUPABASE_URL as string;
 const supabaseKey = process.env.SUPABASE_ANON_KEY as string;
 if (!supabaseUrl || !supabaseKey || supabaseUrl === "your-supabase-url") {

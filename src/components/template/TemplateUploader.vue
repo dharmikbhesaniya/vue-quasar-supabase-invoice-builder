@@ -114,17 +114,18 @@ const uploadTemplate = async () => {
 
   try {
     await uploadTemplateComposable(selectedFile.value!, templateName.value);
+
+    // $q.notify({
+    //   type: "positive",
+    //   message: "Template uploaded successfully!",
+    // });
     emit("uploaded");
     closeDialog();
-    $q.notify({
-      type: "positive",
-      message: "Template uploaded successfully!",
-    });
   } catch (error) {
-    $q.notify({
-      type: "negative",
-      message: error instanceof Error ? error.message : "Upload failed",
-    });
+    // $q.notify({
+    //   type: "negative",
+    //   message: error instanceof Error ? error.message : "Upload failed",
+    // });
   }
 };
 
