@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Professional Invoice Template</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    .invoice-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #333;
+      line-height: 1.6;
+    }
+    
+    .invoice-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 40px;
+      padding-bottom: 30px;
+      border-bottom: 3px solid #2563eb;
+    }
+    
+    .company-info h1 {
+      font-size: 2.5em;
+      color: #2563eb;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+    
+    .company-info p {
+      color: #666;
+      font-size: 1.1em;
+    }
+    
+    .invoice-title {
+      text-align: right;
+    }
+    
+    .invoice-title h2 {
+      font-size: 3em;
+      color: #1f2937;
+      margin-bottom: 10px;
+      font-weight: 300;
+    }
+    
+    .invoice-number {
+      background: #2563eb;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: 600;
+      display: inline-block;
+    }
+    
+    .invoice-details {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+    
+    .detail-section h3 {
+      color: #2563eb;
+      font-size: 1.2em;
+      margin-bottom: 15px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+    }
+    
+    .detail-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 20px;
+    }
+    
+    .detail-box p {
+      margin-bottom: 8px;
+    }
+    
+    .label {
+      font-weight: 600;
+      color: #374151;
+      display: inline-block;
+      width: 120px;
+    }
+    
+    .items-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    
+    .items-table thead {
+      background: linear-gradient(135deg, #2563eb, #3b82f6);
+      color: white;
+    }
+    
+    .items-table th {
+      padding: 16px;
+      text-align: left;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-size: 0.9em;
+    }
+    
+    .items-table th:last-child,
+    .items-table td:last-child {
+      text-align: right;
+    }
+    
+    .items-table tbody tr {
+      border-bottom: 1px solid #e2e8f0;
+      transition: background-color 0.2s ease;
+    }
+    
+    .items-table tbody tr:hover {
+      background: #f8fafc;
+    }
+    
+    .items-table td {
+      padding: 16px;
+      font-size: 0.95em;
+    }
+    
+    .total-section {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 40px;
+    }
+    
+    .total-box {
+      background: #1f2937;
+      color: white;
+      padding: 25px;
+      border-radius: 8px;
+      min-width: 300px;
+    }
+    
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      padding: 5px 0;
+    }
+    
+    .total-row.final {
+      border-top: 2px solid #374151;
+      padding-top: 15px;
+      margin-top: 15px;
+      font-size: 1.3em;
+      font-weight: 700;
+    }
+    
+    .notes-section,
+    .terms-section {
+      margin-bottom: 30px;
+    }
+    
+    .section-title {
+      color: #2563eb;
+      font-size: 1.2em;
+      margin-bottom: 15px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .notes-content,
+    .terms-content {
+      background: #f8fafc;
+      border-left: 4px solid #2563eb;
+      padding: 20px;
+      border-radius: 0 8px 8px 0;
+      font-style: italic;
+      color: #4b5563;
+    }
+    
+    .footer {
+      text-align: center;
+      padding-top: 30px;
+      border-top: 2px solid #e2e8f0;
+      color: #6b7280;
+      font-size: 0.9em;
+    }
+    
+    .type-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.85em;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .type-selling {
+      background: #dcfce7;
+      color: #166534;
+    }
+    
+    .type-purchase {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    
+    .type-salary {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+    
+    @media print {
+      .invoice-container {
+        padding: 20px;
+      }
+      
+      .invoice-header {
+        margin-bottom: 30px;
+      }
+      
+      .items-table {
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="invoice-container">
+    <!-- Header -->
+    <div class="invoice-header">
+      <div class="company-info">
+        <h1>{{company_name}}</h1>
+        <p>Professional Invoice Template</p>
+      </div>
+      <div class="invoice-title">
+        <h2>INVOICE</h2>
+        <div class="invoice-number">{{invoice_number}}</div>
+      </div>
+    </div>
+    
+    <!-- Invoice Details -->
+    <div class="invoice-details">
+      <div class="detail-section">
+        <h3>Bill To</h3>
+        <div class="detail-box">
+          <p><span class="label">Customer:</span> {{customer_name}}</p>
+          <p><span class="label">Date:</span> {{invoice_date}}</p>
+          <p><span class="label">Type:</span> 
+            <span class="type-badge type-{{invoice_type}}">{{invoice_type_display}}</span>
+          </p>
+        </div>
+      </div>
+      
+      <div class="detail-section">
+        <h3>Invoice Details</h3>
+        <div class="detail-box">
+          <p><span class="label">Invoice #:</span> {{invoice_number}}</p>
+          <p><span class="label">Issue Date:</span> {{invoice_date}}</p>
+          <p><span class="label">Due Date:</span> {{due_date}}</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Items Table -->
+    <table class="items-table">
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th>Quantity</th>
+          <th>Unit Price</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each items}}
+        <tr>
+          <td>{{name}}</td>
+          <td>{{quantity}}</td>
+          <td>${{price}}</td>
+          <td>${{total}}</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+    
+    <!-- Total Section -->
+    <div class="total-section">
+      <div class="total-box">
+        <div class="total-row">
+          <span>Subtotal:</span>
+          <span>${{subtotal}}</span>
+        </div>
+        <div class="total-row">
+          <span>Tax (0%):</span>
+          <span>$0.00</span>
+        </div>
+        <div class="total-row final">
+          <span>Total Amount:</span>
+          <span>${{total_amount}}</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Additional Notes -->
+    {{#if additional_notes}}
+    <div class="notes-section">
+      <div class="section-title">Additional Notes</div>
+      <div class="notes-content">
+        {{additional_notes}}
+      </div>
+    </div>
+    {{/if}}
+    
+    <!-- Terms and Conditions -->
+    {{#if terms_conditions}}
+    <div class="terms-section">
+      <div class="section-title">Terms and Conditions</div>
+      <div class="terms-content">
+        {{terms_conditions}}
+      </div>
+    </div>
+    {{/if}}
+    
+    <!-- Footer -->
+    <div class="footer">
+      <p>Thank you for your business! This invoice was generated on {{current_date}}.</p>
+    </div>
+  </div>
+</body>
+</html>

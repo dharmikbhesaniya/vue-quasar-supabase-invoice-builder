@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { supabase } from "boot/supabase";
+import { supabase } from "src/boot/supabase";
 import { ref } from "vue";
 
 export interface Todo {
