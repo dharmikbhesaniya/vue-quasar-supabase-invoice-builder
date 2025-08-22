@@ -43,12 +43,12 @@ const routes: RouteRecordRaw[] = [
         component: () => import("pages/form/CustomFormBuilder.vue"),
         meta: { title: "Create Form" },
       },
-      // {
-      //   path: "/forms/:id/edit",
-      //   name: "EditForm",
-      //   component: () => import("components/form/CustomFormBuilder.vue"),
-      //   meta: { title: "Edit Form" },
-      // },
+      {
+        path: "/forms/:id/edit",
+        name: "EditForm",
+        component: () => import("pages/form/CustomFormBuilder.vue"),
+        meta: { title: "Edit Form" },
+      },
       {
         path: "/forms/:id/fill",
         name: "FillForm",

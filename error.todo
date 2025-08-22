@@ -1,3 +1,4 @@
 fix notify every where
 confirmDeleteTemplate method are not working coz of notify dialog
 make form page proper
+form Live Preview are not working
