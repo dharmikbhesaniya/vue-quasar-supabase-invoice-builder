@@ -3,7 +3,8 @@
     <div class="row q-gutter-md">
       <!-- Left Panel - Form -->
       <div class="col-12 col-md-6">
-        <InvoiceForm />
+        <!-- <InvoiceForm /> -->
+        <FormCreateEdit />
 
         <div class="q-mt-md">
           <TemplateSelector />
@@ -37,16 +38,25 @@
 
 <script setup lang="ts">
 import { useQuasar } from "quasar";
+import FormCreateEdit from "src/components/invoice/FormCreateEdit.vue";
 import TemplateSelector from "src/components/template/TemplateSelector.vue";
-// import InvoiceForm from "src/components/InvoiceForm.vue";
-// import InvoicePreview from "src/components/InvoicePreview.vue";
 import { useInvoiceStore } from "src/stores/invoice";
 import { useTemplateStore } from "src/stores/template";
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
+import { useRoute } from "vue-router";
 
 const $q = useQuasar();
+const route = useRoute();
 const invoiceStore = useInvoiceStore();
 const templateStore = useTemplateStore();
+
+// --- Params ---
+const customerFormId = computed(() => route.params.customerFormId as string);
+const formId = computed(() => route.params.formId as string | undefined);
+
+// --- Mode detection ---
+const isEditMode = computed(() => !!formId.value);
+const isCreateMode = computed(() => !formId.value);
 
 const saving = ref(false);
 

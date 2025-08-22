@@ -3,7 +3,6 @@
   <q-page padding>
     <div class="row justify-center">
       <div class="col-12 col-md-8 col-lg-6">
-        
         <!-- Loading State -->
         <div v-if="loading" class="text-center q-py-xl">
           <q-spinner color="primary" size="3em" />
@@ -35,15 +34,20 @@
         <!-- Form Content -->
         <q-card v-if="currentForm && !loading">
           <q-card-section class="q-pa-lg">
-            
             <!-- Success Message -->
             <div v-if="submitted" class="text-center q-py-xl">
-              <q-icon name="check_circle" size="64px" class="text-positive q-mb-md" />
-              <h5 class="text-positive q-my-md">Form Submitted Successfully!</h5>
+              <q-icon
+                name="check_circle"
+                size="64px"
+                class="text-positive q-mb-md"
+              />
+              <h5 class="text-positive q-my-md">
+                Form Submitted Successfully!
+              </h5>
               <p class="text-grey-6 q-mb-lg">
                 Thank you for your submission. Your response has been recorded.
               </p>
-              
+
               <div class="row justify-center q-gutter-sm">
                 <q-btn
                   color="primary"
@@ -86,120 +90,117 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { useQuasar } from 'quasar'
-import { useCustomFormStore } from '../stores/customFormStore'
-import CustomFormRenderer from '../components/form/CustomFormRenderer.vue'
+import { useQuasar } from "quasar";
+import { computed, onMounted, ref } from "vue";
+import { useRoute } from "vue-router";
+import CustomFormRenderer from "../components/form/CustomFormRenderer.vue";
+import { useCustomFormStore } from "../stores/customFormStore";
 
-const route = useRoute()
-const router = useRouter()
-const $q = useQuasar()
-const formStore = useCustomFormStore()
+const route = useRoute();
+const $q = useQuasar();
+const formStore = useCustomFormStore();
 
 // Reactive data
-const formData = ref<Record<string, any>>({})
-const submitted = ref(false)
-const submitting = ref(false)
+const formData = ref<Record<string, any>>({});
+const submitted = ref(false);
+const submitting = ref(false);
 
 // Computed
-const loading = computed(() => formStore.loading)
-const currentForm = computed(() => formStore.currentForm)
-const currentFormFields = computed(() => formStore.currentFormFields)
+const loading = computed(() => formStore.loading);
+const currentForm = computed(() => formStore.currentForm);
+const currentFormFields = computed(() => formStore.currentFormFields);
 
 // Methods
 const loadForm = async () => {
   try {
-    const formId = route.params.id as string
-    const form = formStore.getFormById(formId)
-    
+    const formId = route.params.id as string;
+    const form = formStore.getFormById(formId);
+
     if (!form) {
       // Try to fetch forms if not in store
-      await formStore.fetchForms()
-      const refreshedForm = formStore.getFormById(formId)
-      
+      await formStore.fetchForms();
+      const refreshedForm = formStore.getFormById(formId);
+
       if (!refreshedForm || !refreshedForm.is_active) {
-        return
+        return;
       }
-      
-      formStore.setCurrentForm(refreshedForm)
+
+      formStore.setCurrentForm(refreshedForm);
     } else {
       if (!form.is_active) {
-        return
+        return;
       }
-      formStore.setCurrentForm(form)
+      formStore.setCurrentForm(form);
     }
-    
+
     // Load form fields
-    await formStore.fetchFormFields(formId)
-    
+    await formStore.fetchFormFields(formId);
+
     // Initialize form data
-    initializeFormData()
-    
+    initializeFormData();
   } catch (error) {
     $q.notify({
-      type: 'negative',
-      message: 'Failed to load form'
-    })
+      type: "negative",
+      message: "Failed to load form",
+    });
   }
-}
+};
 
 const initializeFormData = () => {
-  const initialData: Record<string, any> = {}
-  
-  currentFormFields.value.forEach(field => {
+  const initialData: Record<string, any> = {};
+
+  currentFormFields.value.forEach((field) => {
     switch (field.field_type) {
-      case 'checkbox':
-        initialData[field.field_key] = []
-        break
-      case 'number':
-        initialData[field.field_key] = null
-        break
+      case "checkbox":
+        initialData[field.field_key] = [];
+        break;
+      case "number":
+        initialData[field.field_key] = null;
+        break;
       default:
-        initialData[field.field_key] = ''
+        initialData[field.field_key] = "";
     }
-  })
-  
-  formData.value = initialData
-}
+  });
+
+  formData.value = initialData;
+};
 
 const handleSubmit = async (submissionData: Record<string, any>) => {
   try {
-    submitting.value = true
-    
-    await formStore.submitForm(currentForm.value!.id!, submissionData)
-    
-    submitted.value = true
-    
+    submitting.value = true;
+
+    await formStore.submitForm(currentForm.value!.id!, submissionData);
+
+    submitted.value = true;
+
     $q.notify({
-      type: 'positive',
-      message: 'Form submitted successfully!',
-      position: 'top'
-    })
-    
+      type: "positive",
+      message: "Form submitted successfully!",
+      position: "top",
+    });
   } catch (error) {
     $q.notify({
-      type: 'negative',
-      message: 'Failed to submit form. Please try again.',
-      position: 'top'
-    })
+      type: "negative",
+      message: "Failed to submit form. Please try again.",
+      position: "top",
+    });
   } finally {
-    submitting.value = false
+    submitting.value = false;
   }
-}
+};
 
 const resetForm = () => {
-  submitted.value = false
-  initializeFormData()
-  
+  submitted.value = false;
+  initializeFormData();
+
   // Scroll to top
-  window.scrollTo({ top: 0, behavior: 'smooth' })
-}
+  window.scrollTo({ top: 0, behavior: "smooth" });
+};
 
 // Lifecycle
 onMounted(async () => {
-  await loadForm()
-})
+  await loadForm();
+});
 </script>
 
 <style scoped>

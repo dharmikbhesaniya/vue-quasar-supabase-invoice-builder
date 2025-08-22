@@ -64,7 +64,7 @@ export const useCustomFormStore = defineStore("customForm", () => {
       // Ensure description is not undefined
       const formData = {
         ...form,
-        description: form.description || null,
+        // description: form.description || null,
       };
 
       const { data, error: supabaseError } = await supabase
@@ -324,6 +324,21 @@ export const useCustomFormStore = defineStore("customForm", () => {
     loading.value = false;
   };
 
+  /**
+   * Set current form fields (for create mode)
+   */
+  const setCurrentFormFields = (fields: any[]) => {
+    currentFormFields.value = fields;
+  };
+
+  /**
+   * Reset current form and fields
+   */
+  const resetCurrentForm = () => {
+    currentForm.value = null;
+    currentFormFields.value = [];
+  };
+
   return {
     // State
     forms,
@@ -354,5 +369,8 @@ export const useCustomFormStore = defineStore("customForm", () => {
     resetStore,
     setError,
     setLoading,
+
+    setCurrentFormFields,
+    resetCurrentForm,
   };
 });

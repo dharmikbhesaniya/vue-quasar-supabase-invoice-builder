@@ -31,10 +31,30 @@ const routes: RouteRecordRaw[] = [
       //   component: () => import("components/InvoiceEditor.vue"),
       //   name: "EditInvoice",
       // },
+      //--------- fo invoice------------
+      // {
+      //   path: "/invoice",
+      //   name: "NewInvoice",
+      //   component: () => import("pages/InvoicePage.vue"),
+      //   meta: { title: "New Invoice" },
+      // },
+      // {
+      //   path: "/invoice/:id",
+      //   name: "EditInvoice",
+      //   component: () => import("pages/InvoicePage.vue"),
+      //   meta: { title: "Edit Invoice" },
+      // },
       {
-        path: "/invoice/new",
+        path: "/invoice/:customerFormId",
+        name: "invoice-create",
         component: () => import("pages/InvoicePage.vue"),
-        name: "NewInvoice",
+        props: true, // Pass params as props
+      },
+      {
+        path: "/invoice/:customerFormId/:formId",
+        name: "invoice-edit",
+        component: () => import("pages/InvoicePage.vue"),
+        props: true,
       },
       {
         path: "/forms",
@@ -57,7 +77,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: "/forms/:id/fill",
         name: "FillForm",
-        component: () => import("pages/FormFill.vue"),
+        component: () => import("components/invoice/FormCreateEdit.vue"),
         meta: { title: "Fill Form" },
       },
       {
