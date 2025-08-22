@@ -62,6 +62,7 @@ const routes: RouteRecordRaw[] = [
         meta: { title: "View Form" },
         props: { readonly: true },
       },
+      // TODO: below page are not required now
       {
         path: "/forms/:id/submissions",
         name: "FormSubmissions",

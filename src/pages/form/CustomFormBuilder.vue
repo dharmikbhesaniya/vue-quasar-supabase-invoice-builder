@@ -181,6 +181,8 @@
         </q-card>
       </div>
     </div>
+
+    <!-- TODO: create septate component of this dialog -->
     <!-- Add/Edit Field Dialog -->
     <q-dialog v-model="showAddFieldDialog" persistent>
       <q-card style="min-width: 500px">
@@ -379,6 +381,8 @@ import {
 } from "src/stores/customFormStore";
 import CustomFormRenderer from "src/components/form/CustomFormRenderer.vue";
 import CustomHeader from "src/components/ui/CustomHeader.vue";
+import { getFieldTypeIcon } from "src/utils/form";
+import { fieldTypeOptions, validationTypeOptions } from "src/constants/form";
 
 const router = useRouter();
 const route = useRoute();
@@ -393,6 +397,10 @@ if (!$q || !$q.notify) {
 // Refs
 const formRef = ref();
 const fieldFormRef = ref();
+const formFields = ref<FormField[]>([]);
+const showAddFieldDialog = ref(false);
+const editingField = ref<FormField | null>(null);
+const previewData = ref<Record<string, any>>({});
 
 // Reactive data
 const formData = reactive<Partial<CustomForm>>({
@@ -400,11 +408,6 @@ const formData = reactive<Partial<CustomForm>>({
   description: "",
   is_active: true,
 });
-
-const formFields = ref<FormField[]>([]);
-const showAddFieldDialog = ref(false);
-const editingField = ref<FormField | null>(null);
-const previewData = ref<Record<string, any>>({});
 
 // Current field being edited
 const currentField = reactive<Partial<FormField>>({
@@ -430,46 +433,7 @@ const saveButtonText = computed(() =>
   isEditing.value ? "Update Form" : "Create Form"
 );
 
-// Field type options
-const fieldTypeOptions = [
-  { label: "Text", value: "text" },
-  { label: "Email", value: "email" },
-  { label: "Number", value: "number" },
-  { label: "Textarea", value: "textarea" },
-  { label: "Select", value: "select" },
-  { label: "Checkbox", value: "checkbox" },
-  { label: "Radio", value: "radio" },
-  { label: "Date", value: "date" },
-  { label: "File", value: "file" },
-  { label: "Editor", value: "editor" },
-];
-
-// Validation type options
-const validationTypeOptions = [
-  { label: "Required", value: "required" },
-  { label: "Email", value: "email" },
-  { label: "Minimum Length", value: "min" },
-  { label: "Maximum Length", value: "max" },
-  { label: "Pattern", value: "pattern" },
-];
-
 // Methods
-const getFieldTypeIcon = (type: string) => {
-  const icons: Record<string, string> = {
-    text: "text_fields",
-    email: "email",
-    number: "numbers",
-    textarea: "subject",
-    select: "arrow_drop_down",
-    checkbox: "check_box",
-    radio: "radio_button_checked",
-    date: "event",
-    file: "attach_file",
-    // TODO: change icon
-    editor: "attach_file",
-  };
-  return icons[type] || "text_fields";
-};
 
 const resetCurrentField = () => {
   Object.assign(currentField, {
