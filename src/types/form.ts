@@ -4,6 +4,10 @@ export interface ValidationRule {
   message: string;
 }
 
+export interface FormFieldOptions {
+  label: string;
+  value: string | number;
+}
 export interface FormField {
   id?: string;
   form_id?: string;
@@ -21,7 +25,7 @@ export interface FormField {
     | "file"
     | "editor";
   validation_rules?: ValidationRule[];
-  options?: { label: string; value: string | number }[];
+  options?: FormFieldOptions[];
   placeholder?: string;
   is_required: boolean;
   sort_order: number;

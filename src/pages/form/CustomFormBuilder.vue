@@ -7,7 +7,8 @@
       :title="pageTitle"
       :subtitle="
         isEditing ? 'Update your existing form' : 'Create a new custom form'
-      " />
+      "
+    />
 
     <div class="row q-gutter-md">
       <!-- Left Panel: Form Builder -->
@@ -58,14 +59,14 @@
                 color="primary"
                 icon="add"
                 label="Add Field"
-                @click="showAddFieldDialog = true"
+                @click="formBuilderStore.showAddFieldDialog = true"
                 dense
               />
             </div>
 
             <!-- Fields List -->
             <div
-              v-if="formFields.length === 0"
+              v-if="formBuilderStore.formFields.length === 0"
               class="text-center text-grey-6 q-py-xl"
             >
               <q-icon name="description" size="48px" class="q-mb-md" />
@@ -76,7 +77,7 @@
             </div>
             <div class="q-gutter-sm">
               <q-card
-                v-for="(field, index) in formFields"
+                v-for="(field, index) in formBuilderStore.formFields"
                 :key="field.field_key"
                 flat
                 bordered
@@ -157,12 +158,13 @@
       </div>
 
       <!-- Right Panel: Live Preview -->
-      <PreviewForm :fields="formFields" />
+      <PreviewForm :fields="formBuilderStore.formFields" />
     </div>
 
     <!-- TODO: create septate component of this dialog -->
     <!-- Add/Edit Field Dialog -->
-    <q-dialog v-model="showAddFieldDialog" persistent>
+    <AddEditFieldDialog />
+    <!-- <q-dialog v-model="showAddFieldDialog" persistent>
       <q-card style="min-width: 500px">
         <q-card-section>
           <div class="text-h6">
@@ -226,7 +228,6 @@
               />
             </div>
 
-            <!-- Options for select, radio, checkbox -->
             <div
               v-if="
                 ['select', 'radio', 'checkbox'].includes(
@@ -276,7 +277,6 @@
               />
             </div>
 
-            <!-- Validation Rules -->
             <div class="q-mt-md">
               <div class="text-subtitle2 q-mb-sm">Validation Rules</div>
               <div
@@ -344,16 +344,17 @@
           <q-btn flat label="Cancel" @click="cancelFieldEdit" />
           <q-btn color="primary" label="Save Field" @click="addField" />
         </q-card-actions>
-      </q-card> </q-dialog
-  ></q-page>
+      </q-card> </q-dialog> -->
+  </q-page>
 </template>
 
 <script setup lang="ts">
 import { useQuasar } from "quasar";
+import AddEditFieldDialog from "src/components/form/AddEditFieldDialog.vue";
 import PreviewForm from "src/components/form/PreviewForm.vue";
 import CustomHeader from "src/components/ui/CustomHeader.vue";
-import { fieldTypeOptions, validationTypeOptions } from "src/constants/form";
 import { useCustomFormStore } from "src/stores/customFormStore";
+import { useFormBuilderStore } from "src/stores/formBuilder";
 import { CustomForm, FormField } from "src/types/form";
 import { getFieldTypeIcon } from "src/utils/form";
 import { computed, onMounted, reactive, ref } from "vue";
@@ -363,6 +364,7 @@ const router = useRouter();
 const route = useRoute();
 const $q = useQuasar();
 const formStore = useCustomFormStore();
+const formBuilderStore = useFormBuilderStore();
 
 // Check if $q is properly initialized
 if (!$q || !$q.notify) {
@@ -372,8 +374,6 @@ if (!$q || !$q.notify) {
 // Refs
 const formRef = ref();
 const fieldFormRef = ref();
-// TODO: move below variable in to formBuild store
-const formFields = ref<FormField[]>([]);
 const showAddFieldDialog = ref(false);
 const editingField = ref<FormField | null>(null);
 
@@ -419,7 +419,7 @@ const resetCurrentField = () => {
     is_required: false,
     options: [],
     validation_rules: [],
-    sort_order: formFields.value.length,
+    sort_order: formBuilderStore.formFields.length,
   });
 };
 
@@ -449,7 +449,7 @@ const addField = async () => {
   if (!isValid) return;
 
   // Check for duplicate field keys (excluding current field if editing)
-  const existingFieldIndex = formFields.value.findIndex(
+  const existingFieldIndex = formBuilderStore.formFields.findIndex(
     (f: { field_key: any }) =>
       f.field_key === currentField.field_key && f !== editingField.value
   );
@@ -478,17 +478,17 @@ const addField = async () => {
     validation_rules: currentField.validation_rules
       ? JSON.parse(JSON.stringify(currentField.validation_rules))
       : [],
-    sort_order: currentField.sort_order || formFields.value.length,
+    sort_order: currentField.sort_order || formBuilderStore.formFields.length,
   };
 
   if (editingField.value) {
     // Update existing field
-    const index = formFields.value.findIndex(
+    const index = formBuilderStore.formFields.findIndex(
       (f: { field_key: any }) => f.field_key === editingField.value!.field_key
     );
     if (index !== -1) {
       // Preserve the original field's ID and other metadata if it exists
-      formFields.value[index] = {
+      formBuilderStore.formFields[index] = {
         ...fieldData,
         id: editingField.value.id,
         form_id: editingField.value.form_id,
@@ -498,7 +498,7 @@ const addField = async () => {
     }
   } else {
     // Add new field
-    formFields.value.push(fieldData as FormField);
+    formBuilderStore.formFields.push(fieldData as FormField);
   }
 
   // Update field order
@@ -530,22 +530,24 @@ const deleteField = (index: number) => {
 
   if ($q && $q.dialog) {
     $q.dialog(dialogOptions).onOk(() => {
-      formFields.value.splice(index, 1);
+      formBuilderStore.formFields.splice(index, 1);
       updateFieldsOrder();
     });
   } else {
     // Fallback to native confirm
     if (confirm("Are you sure you want to delete this field?")) {
-      formFields.value.splice(index, 1);
+      formBuilderStore.formFields.splice(index, 1);
       updateFieldsOrder();
     }
   }
 };
 
 const updateFieldsOrder = () => {
-  formFields.value.forEach((field: { sort_order: any }, index: any) => {
-    field.sort_order = index;
-  });
+  formBuilderStore.formFields.forEach(
+    (field: { sort_order: any }, index: any) => {
+      field.sort_order = index;
+    }
+  );
 };
 
 const addOption = () => {
@@ -572,7 +574,7 @@ const saveForm = async () => {
   const isValid = await formRef.value.validate();
   if (!isValid) return;
 
-  if (formFields.value.length === 0) {
+  if (formBuilderStore.formFields.length === 0) {
     const warningMessage = "Please add at least one field to the form";
     if ($q && $q.notify) {
       $q.notify({
@@ -605,7 +607,7 @@ const saveForm = async () => {
         existingFields.map((field) => [field.field_key, field])
       );
       const newFieldsMap = new Map(
-        formFields.value.map((field) => [field.field_key, field])
+        formBuilderStore.formFields.map((field) => [field.field_key, field])
       );
 
       // Delete fields that are no longer present
@@ -616,7 +618,7 @@ const saveForm = async () => {
       }
 
       // Update or create fields
-      for (const field of formFields.value) {
+      for (const field of formBuilderStore.formFields) {
         const existingField = existingFieldsMap.get(field.field_key);
 
         if (existingField && existingField.id) {
@@ -643,7 +645,7 @@ const saveForm = async () => {
       });
 
       // Add form fields
-      for (const field of formFields.value) {
+      for (const field of formBuilderStore.formFields) {
         await formStore.createFormField({
           ...field,
           form_id: savedForm.id!,
@@ -707,7 +709,7 @@ const loadForm = async () => {
 
         // Load form fields
         await formStore.fetchFormFields(form.id!);
-        formFields.value = [...formStore.currentFormFields];
+        formBuilderStore.formFields = [...formStore.currentFormFields];
       } else {
         // Form not found, redirect to forms list
         if ($q && $q.notify) {
