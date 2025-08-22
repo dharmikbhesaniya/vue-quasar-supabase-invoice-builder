@@ -1,21 +1,13 @@
 <!-- pages/FormsList.vue -->
 <template>
   <q-page padding>
-    <div class="row items-center justify-between q-mb-lg">
-      <div>
-        <h4 class="q-my-none">Custom Forms</h4>
-        <p class="text-grey-6 q-mb-none">
-          Manage your custom forms and view submissions
-        </p>
-      </div>
-      <q-btn
-        color="primary"
-        icon="add"
-        label="Create Form"
-        @click="$router.push('/forms/create')"
-        size="lg"
-      />
-    </div>
+    <CustomHeader
+      title="Custom Forms"
+      subtitle="Manage your custom forms"
+      button-label="Create Form"
+      button-icon="add_circle"
+      :on-button-click="goToCreateSurvey"
+    />
 
     <!-- Search and Filters -->
     <q-card flat class="q-mb-lg">
@@ -255,6 +247,7 @@ import { useQuasar } from "quasar";
 import { useCustomFormStore } from "../stores/customFormStore";
 import type { CustomForm } from "../stores/customFormStore";
 import { date } from "quasar";
+import CustomHeader from "src/components/ui/CustomHeader.vue";
 
 const router = useRouter();
 const $q = useQuasar();
@@ -342,6 +335,9 @@ const recentSubmissions = computed(() => {
 });
 
 // Methods
+const goToCreateSurvey = () => {
+  router.push("/forms/create");
+};
 const formatDate = (dateString?: string) => {
   if (!dateString) return "Unknown";
   return date.formatDate(new Date(dateString), "MMM DD, YYYY");

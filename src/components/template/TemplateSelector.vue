@@ -1,23 +1,6 @@
 <template>
   <q-card>
     <q-card-section>
-      <TemplateHeader
-        title="Invoice Templates"
-        :show-button="true"
-        button-label="Upload Template"
-        button-icon="add"
-        @button-click="showUploadDialog = true"
-      >
-        <template #info>
-          <div class="row justify-between">
-            <span>Total Templates:</span>
-            <span class="text-bold q-ml-sm">{{ templates.length }}</span>
-          </div>
-        </template>
-      </TemplateHeader>
-    </q-card-section>
-
-    <q-card-section>
       <div class="row q-gutter-sm">
         <TemplateCard
           v-for="template in templates"
@@ -54,7 +37,6 @@ import { ref, computed, onMounted } from "vue";
 import { useQuasar } from "quasar";
 import { useTemplateStore } from "src/stores/template";
 import { InvoiceTemplate } from "src/types/invoice";
-import TemplateHeader from "./TemplateHeader.vue";
 import TemplateUploader from "src/components/template/TemplateUploader.vue";
 import PreviewDialog from "../PreviewDialog.vue";
 import TemplateCard from "./TemplateCard.vue";
