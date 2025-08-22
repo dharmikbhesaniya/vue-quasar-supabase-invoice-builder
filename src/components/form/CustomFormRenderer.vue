@@ -124,6 +124,18 @@
           </div>
         </div>
 
+        <!-- Email Input -->
+        <q-editor
+          v-else-if="field.field_type === 'editor'"
+          v-model="localFormData[field.field_key]"
+          :label="field.field_name"
+          :placeholder="field.placeholder"
+          :rules="getFieldRules(field)"
+          outlined
+          dense
+          :disable="previewMode"
+        />
+
         <!-- File Upload -->
         <q-file
           v-else-if="field.field_type === 'file'"

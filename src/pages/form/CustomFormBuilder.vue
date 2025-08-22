@@ -441,6 +441,7 @@ const fieldTypeOptions = [
   { label: "Radio", value: "radio" },
   { label: "Date", value: "date" },
   { label: "File", value: "file" },
+  { label: "Editor", value: "editor" },
 ];
 
 // Validation type options
@@ -464,6 +465,8 @@ const getFieldTypeIcon = (type: string) => {
     radio: "radio_button_checked",
     date: "event",
     file: "attach_file",
+    // TODO: change icon
+    editor: "attach_file",
   };
   return icons[type] || "text_fields";
 };

@@ -23,7 +23,8 @@ export interface FormField {
     | "checkbox"
     | "radio"
     | "date"
-    | "file";
+    | "file"
+    | "editor";
   validation_rules?: ValidationRule[];
   options?: { label: string; value: string | number }[];
   placeholder?: string;
@@ -358,9 +359,9 @@ export const useCustomFormStore = defineStore("customForm", () => {
     }
   };
 
-    const selectForm = (form: CustomForm) => {
-      selectedForm.value = form;
-    };
+  const selectForm = (form: CustomForm) => {
+    selectedForm.value = form;
+  };
 
   const resetStore = () => {
     forms.value = [];
