@@ -353,11 +353,8 @@ import { useQuasar } from "quasar";
 import PreviewForm from "src/components/form/PreviewForm.vue";
 import CustomHeader from "src/components/ui/CustomHeader.vue";
 import { fieldTypeOptions, validationTypeOptions } from "src/constants/form";
-import {
-  CustomForm,
-  FormField,
-  useCustomFormStore,
-} from "src/stores/customFormStore";
+import { useCustomFormStore } from "src/stores/customFormStore";
+import { CustomForm, FormField } from "src/types/form";
 import { getFieldTypeIcon } from "src/utils/form";
 import { computed, onMounted, reactive, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";

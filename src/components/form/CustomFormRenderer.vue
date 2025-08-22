@@ -171,7 +171,7 @@
 </template>
 
 <script setup lang="ts">
-import { FormField, ValidationRule } from "src/stores/customFormStore";
+import { FormField, ValidationRule } from "src/types/form";
 import { ref, computed, watch, reactive } from "vue";
 
 // Props

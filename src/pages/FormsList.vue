@@ -251,9 +251,9 @@ import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useQuasar } from "quasar";
 import { useCustomFormStore } from "../stores/customFormStore";
-import type { CustomForm } from "../stores/customFormStore";
 import { date } from "quasar";
 import CustomHeader from "src/components/ui/CustomHeader.vue";
+import { CustomForm } from "src/types/form";
 
 const router = useRouter();
 const $q = useQuasar();
