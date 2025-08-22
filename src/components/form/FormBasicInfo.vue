@@ -4,7 +4,7 @@
     <q-card-section>
       <div class="text-h6">{{ title }}</div>
 
-      <q-form @submit="handleSubmit" :ref="props.formRef">
+      <q-form @submit="handleSubmit">
         <div class="row q-gutter-md q-mb-md">
           <div class="col">
             <q-input
@@ -44,8 +44,8 @@ import { Ref, ref } from "vue";
 
 interface Props {
   title: string;
-  formRef: any;
-  onSubmit: () => Promise<void>; // parent-provided submit handler
+  // formRef: any;
+  // onSubmit: () => Promise<void>; // parent-provided submit handler
 }
 
 const props = defineProps<Props>();
@@ -57,7 +57,7 @@ const formRef = ref();
 
 const handleSubmit = () => {
   // This will be handled by the parent component
-  props.onSubmit();
+  // props.onSubmit();
   console.log("Form submitted");
 };
 

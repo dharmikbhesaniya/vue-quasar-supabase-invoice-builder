@@ -1,7 +1,7 @@
 <!-- components/CustomFormBuilder.vue -->
 <template>
   <q-page padding>
-    <!-- Breadcrumb Navigation -->
+    <!-- Header -->
     <CustomHeader
       :back-btn="true"
       :title="pageTitle"
@@ -12,18 +12,18 @@
 
     <div class="row q-gutter-md">
       <!-- Left Panel: Form Builder -->
-
-      <div class="col-md-8 col-12">
-        <!-- <FormBasicInfo title="test" :on-submit="saveForm" formRef="formRef" /> -->
+      <div class="col-lg-8 col-md-7 col-12">
+        <!-- Form Basic Info -->
+        <!-- <FormBasicInfo :title="pageTitle" ref="basicInfoRef" /> -->
         <q-card>
           <q-card-section>
             <div class="text-h6">{{ pageTitle }}</div>
 
-            <q-form @submit="saveForm" ref="formRef">
+            <q-form @submit="saveForm" ref="basicInfoRef">
               <div class="row q-gutter-md q-mb-md">
                 <div class="col">
                   <q-input
-                    v-model="formData.name"
+                    v-model="formBuilderStore.formData.name"
                     label="Form Name"
                     outlined
                     dense
@@ -32,7 +32,7 @@
                 </div>
                 <div class="col">
                   <q-toggle
-                    v-model="formData.is_active"
+                    v-model="formBuilderStore.formData.is_active"
                     label="Active"
                     color="primary"
                   />
@@ -40,7 +40,7 @@
               </div>
 
               <q-input
-                v-model="formData.description"
+                v-model="formBuilderStore.formData.description"
                 label="Form Description"
                 type="textarea"
                 outlined
@@ -51,116 +51,21 @@
           </q-card-section>
         </q-card>
 
+        <!-- Form Fields List -->
+        <FormFieldsList />
 
-        <!-- Form Fields Builder -->
-        <q-card class="q-mt-md">
-          <q-card-section>
-            <div class="row justify-between items-center q-mb-md">
-              <div class="text-h6">Form Fields</div>
-              <q-btn
-                color="primary"
-                icon="add"
-                label="Add Field"
-                @click="formBuilderStore.showAddFieldDialog = true"
-                dense
-              />
-            </div>
-
-            <!-- Fields List -->
-            <div
-              v-if="formBuilderStore.formFields.length === 0"
-              class="text-center text-grey-6 q-py-xl"
-            >
-              <q-icon name="description" size="48px" class="q-mb-md" />
-              <div>
-                No fields added yet. Click "Add Field" to start building your
-                form.
-              </div>
-            </div>
-            <div class="q-gutter-sm">
-              <q-card
-                v-for="(field, index) in formBuilderStore.formFields"
-                :key="field.field_key"
-                flat
-                bordered
-                class="field-card q-mb-sm"
-                :class="{
-                  'bg-blue-1': editingField?.field_key === field.field_key,
-                }"
-              >
-                <q-card-section class="row items-center q-pa-md">
-                  <q-icon
-                    name="drag_indicator"
-                    class="drag-handle cursor-pointer q-mr-sm text-grey-6"
-                  />
-
-                  <div class="col">
-                    <div class="row items-center q-gutter-sm">
-                      <q-chip
-                        :icon="getFieldTypeIcon(field.field_type)"
-                        :label="field.field_type"
-                        size="sm"
-                        color="primary"
-                        outline
-                      />
-                      <span class="text-weight-medium">{{
-                        field.field_name
-                      }}</span>
-                      <q-badge
-                        v-if="field.is_required"
-                        color="orange"
-                        label="Required"
-                      />
-                    </div>
-                    <div class="text-caption text-grey-6">
-                      Key: {{ field.field_key }}
-                    </div>
-                    <div
-                      v-if="field.placeholder"
-                      class="text-caption text-grey-6"
-                    >
-                      Placeholder: {{ field.placeholder }}
-                    </div>
-                  </div>
-
-                  <div class="row q-gutter-xs">
-                    <q-btn
-                      flat
-                      round
-                      icon="edit"
-                      size="sm"
-                      @click="editField(field)"
-                      color="primary"
-                    />
-                    <q-btn
-                      flat
-                      round
-                      icon="delete"
-                      size="sm"
-                      @click="deleteField(index)"
-                      color="negative"
-                    />
-                  </div>
-                </q-card-section>
-              </q-card>
-            </div>
-          </q-card-section>
-        </q-card>
-        <!-- Save Form Button -->
-        <div class="row justify-center q-mt-md">
-          <q-btn
-            color="primary"
-            size="lg"
-            :label="saveButtonText"
-            @click="saveForm"
-            :loading="loading"
-            class="q-px-xl"
-          />
-        </div>
+        <!-- Form Actions -->
+        <FormActions
+          :is-editing="(isEditing as boolean)"
+          :loading="loading"
+          @save="saveForm"
+        />
       </div>
 
       <!-- Right Panel: Live Preview -->
-      <PreviewForm :fields="formBuilderStore.formFields" />
+      <div class="col-lg-4 col-md-5 col-12">
+        <PreviewForm :fields="formBuilderStore.formFields" />
+      </div>
     </div>
 
     <!-- Add/Edit Field Dialog -->
@@ -171,387 +76,202 @@
 <script setup lang="ts">
 import { useQuasar } from "quasar";
 import AddEditFieldDialog from "src/components/form/AddEditFieldDialog.vue";
+import FormActions from "src/components/form/FormActions.vue";
 import FormBasicInfo from "src/components/form/FormBasicInfo.vue";
+import FormFieldsList from "src/components/form/FormFieldsList.vue";
 import PreviewForm from "src/components/form/PreviewForm.vue";
 import CustomHeader from "src/components/ui/CustomHeader.vue";
 import { useCustomFormStore } from "src/stores/customFormStore";
 import { useFormBuilderStore } from "src/stores/formBuilder";
-import { CustomForm, FormField } from "src/types/form";
-import { getFieldTypeIcon } from "src/utils/form";
-import { computed, onMounted, reactive, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
+// Composables
 const router = useRouter();
 const route = useRoute();
 const $q = useQuasar();
-const formStore = useCustomFormStore();
-const formBuilderStore = useFormBuilderStore();
 
-// Check if $q is properly initialized
-if (!$q || !$q.notify) {
-  console.error("Quasar not properly initialized");
-}
+// Stores
+const formBuilderStore = useFormBuilderStore();
+const customFormStore = useCustomFormStore();
 
 // Refs
-const formRef = ref();
-const fieldFormRef = ref();
-const showAddFieldDialog = ref(false);
-const editingField = ref<FormField | null>(null);
-
-// Reactive data
-const formData = reactive<Partial<CustomForm>>({
-  name: "",
-  description: "",
-  is_active: true,
-});
-
-// Current field being edited
-const currentField = reactive<Partial<FormField>>({
-  field_name: "",
-  field_key: "",
-  field_type: "text",
-  placeholder: "",
-  is_required: false,
-  options: [],
-  validation_rules: [],
-  sort_order: 0,
-});
+const basicInfoRef = ref();
 
 // Computed
-const loading = computed(() => formStore.loading);
+const loading = computed(
+  () => customFormStore.loading || formBuilderStore.isLoading
+);
 const isEditing = computed(
   () => route.params.id && route.params.id !== "create"
 );
 const pageTitle = computed(() =>
   isEditing.value ? "Edit Form" : "Create Form"
 );
-const saveButtonText = computed(() =>
-  isEditing.value ? "Update Form" : "Create Form"
-);
 
 // Methods
+const loadForm = async () => {
+  if (!isEditing.value) return;
 
-const resetCurrentField = () => {
-  Object.assign(currentField, {
-    field_name: "",
-    field_key: "",
-    field_type: "text",
-    placeholder: "",
-    is_required: false,
-    options: [],
-    validation_rules: [],
-    sort_order: formBuilderStore.formFields.length,
-  });
-};
+  try {
+    formBuilderStore.setLoading(true);
 
-const editField = (field: FormField) => {
-  editingField.value = field;
-  // Deep copy the field to avoid direct mutation
-  Object.assign(currentField, {
-    ...field,
-    options: field.options ? JSON.parse(JSON.stringify(field.options)) : [],
-    validation_rules: field.validation_rules
-      ? JSON.parse(JSON.stringify(field.validation_rules))
-      : [],
-  });
-  showAddFieldDialog.value = true;
-};
+    // Check if form exists in store first
+    let form = customFormStore.getFormById(route.params.id as string);
 
-const cancelFieldEdit = () => {
-  showAddFieldDialog.value = false;
-  editingField.value = null;
-  resetCurrentField();
-};
+    if (!form) {
+      // Fetch forms if not in store
+      await customFormStore.fetchForms();
+      form = customFormStore.getFormById(route.params.id as string);
+    }
 
-const addField = async () => {
-  if (!fieldFormRef.value) return;
+    if (form) {
+      // Populate form data
+      formBuilderStore.setFormData({
+        name: form.name,
+        description: form.description || "",
+        is_active: form.is_active,
+      });
 
-  const isValid = await fieldFormRef.value.validate();
-  if (!isValid) return;
+      // Set current form in store
+      customFormStore.setCurrentForm(form);
 
-  // Check for duplicate field keys (excluding current field if editing)
-  const existingFieldIndex = formBuilderStore.formFields.findIndex(
-    (f: { field_key: any }) =>
-      f.field_key === currentField.field_key && f !== editingField.value
-  );
-
-  if (existingFieldIndex !== -1) {
-    console.error("Field key must be unique");
-    if ($q && $q.notify) {
+      // Load form fields
+      await customFormStore.fetchFormFields(form.id!);
+      formBuilderStore.setFormFields([...customFormStore.currentFormFields]);
+    } else {
+      // Form not found
       $q.notify({
         type: "negative",
-        message: "Field key must be unique",
+        message: "Form not found",
       });
+      router.push("/forms");
     }
-    return;
-  }
-
-  // Create a clean field object
-  const fieldData = {
-    field_name: currentField.field_name!,
-    field_key: currentField.field_key!,
-    field_type: currentField.field_type!,
-    placeholder: currentField.placeholder || "",
-    is_required: currentField.is_required || false,
-    options: currentField.options
-      ? JSON.parse(JSON.stringify(currentField.options))
-      : [],
-    validation_rules: currentField.validation_rules
-      ? JSON.parse(JSON.stringify(currentField.validation_rules))
-      : [],
-    sort_order: currentField.sort_order || formBuilderStore.formFields.length,
-  };
-
-  if (editingField.value) {
-    // Update existing field
-    const index = formBuilderStore.formFields.findIndex(
-      (f: { field_key: any }) => f.field_key === editingField.value!.field_key
-    );
-    if (index !== -1) {
-      // Preserve the original field's ID and other metadata if it exists
-      formBuilderStore.formFields[index] = {
-        ...fieldData,
-        id: editingField.value.id,
-        form_id: editingField.value.form_id,
-        created_at: editingField.value.created_at,
-        // updated_at: editingField.value.updated_at,
-      } as FormField;
-    }
-  } else {
-    // Add new field
-    formBuilderStore.formFields.push(fieldData as FormField);
-  }
-
-  // Update field order
-  updateFieldsOrder();
-
-  cancelFieldEdit();
-
-  const message = editingField.value
-    ? "Field updated successfully"
-    : "Field added successfully";
-
-  if ($q && $q.notify) {
+  } catch (error) {
+    console.error("Error loading form:", error);
     $q.notify({
-      type: "positive",
-      message: message,
+      type: "negative",
+      message: "Failed to load form",
     });
-  } else {
-    console.log(message);
+  } finally {
+    formBuilderStore.setLoading(false);
   }
-};
-
-const deleteField = (index: number) => {
-  const dialogOptions = {
-    title: "Confirm Delete",
-    message: "Are you sure you want to delete this field?",
-    cancel: true,
-    persistent: true,
-  };
-
-  if ($q && $q.dialog) {
-    $q.dialog(dialogOptions).onOk(() => {
-      formBuilderStore.formFields.splice(index, 1);
-      updateFieldsOrder();
-    });
-  } else {
-    // Fallback to native confirm
-    if (confirm("Are you sure you want to delete this field?")) {
-      formBuilderStore.formFields.splice(index, 1);
-      updateFieldsOrder();
-    }
-  }
-};
-
-const updateFieldsOrder = () => {
-  formBuilderStore.formFields.forEach(
-    (field: { sort_order: any }, index: any) => {
-      field.sort_order = index;
-    }
-  );
-};
-
-const addOption = () => {
-  if (!currentField.options) currentField.options = [];
-  currentField.options.push({ label: "", value: "" });
-};
-
-const removeOption = (index: number) => {
-  currentField.options?.splice(index, 1);
-};
-
-const addValidationRule = () => {
-  if (!currentField.validation_rules) currentField.validation_rules = [];
-  currentField.validation_rules.push({ type: "required", message: "" });
-};
-
-const removeValidationRule = (index: number) => {
-  currentField.validation_rules?.splice(index, 1);
 };
 
 const saveForm = async () => {
-  if (!formRef.value) return;
-  console.log("hey there --->");
+  try {
+    // Validate basic info
+    const isBasicInfoValid = await basicInfoRef.value?.validate();
+    if (!isBasicInfoValid) return;
 
-  const isValid = await formRef.value.validate();
-  if (!isValid) return;
-
-  if (formBuilderStore.formFields.length === 0) {
-    const warningMessage = "Please add at least one field to the form";
-    if ($q && $q.notify) {
+    // Check if form has fields
+    if (!formBuilderStore.hasFields) {
       $q.notify({
         type: "warning",
-        message: warningMessage,
+        message: "Please add at least one field to the form",
       });
-    } else {
-      alert(warningMessage);
+      return;
     }
-    return;
-  }
 
-  try {
-    let savedForm: CustomForm;
-    const isEditing = route.params.id && route.params.id !== "create";
+    formBuilderStore.setLoading(true);
 
-    if (isEditing) {
+    let savedForm;
+    const formData = formBuilderStore.formData;
+
+    if (isEditing.value) {
       // Update existing form
-      savedForm = await formStore.updateForm(route.params.id as string, {
+      savedForm = await customFormStore.updateForm(route.params.id as string, {
         name: formData.name!,
         description: formData.description || "",
         is_active: formData.is_active!,
       });
 
-      // Get existing fields to compare
-      const existingFields = formStore.currentFormFields;
-
-      // Create maps for easier comparison
-      const existingFieldsMap = new Map(
-        existingFields.map((field) => [field.field_key, field])
-      );
-      const newFieldsMap = new Map(
-        formBuilderStore.formFields.map((field) => [field.field_key, field])
-      );
-
-      // Delete fields that are no longer present
-      for (const existingField of existingFields) {
-        if (!newFieldsMap.has(existingField.field_key) && existingField.id) {
-          await formStore.deleteFormField(existingField.id);
-        }
-      }
-
-      // Update or create fields
-      for (const field of formBuilderStore.formFields) {
-        const existingField = existingFieldsMap.get(field.field_key);
-
-        if (existingField && existingField.id) {
-          // Update existing field
-          await formStore.updateFormField(existingField.id, {
-            ...field,
-            form_id: savedForm.id!,
-            id: existingField.id,
-          });
-        } else {
-          // Create new field
-          await formStore.createFormField({
-            ...field,
-            form_id: savedForm.id!,
-          });
-        }
-      }
+      // Handle form fields updates
+      await updateFormFields(savedForm.id!);
     } else {
       // Create new form
-      savedForm = await formStore.createForm({
+      savedForm = await customFormStore.createForm({
         name: formData.name!,
         description: formData.description || "",
         is_active: formData.is_active!,
       });
 
       // Add form fields
-      for (const field of formBuilderStore.formFields) {
-        await formStore.createFormField({
-          ...field,
-          form_id: savedForm.id!,
-        });
-      }
+      await createFormFields(savedForm.id!);
     }
 
-    // const successMessage = isEditing
+    // const successMessage = isEditing.value
     //   ? "Form updated successfully!"
     //   : "Form created successfully!";
 
-    // if ($q && $q.notify) {
-    //   $q.notify({
-    //     type: "positive",
-    //     message: successMessage,
-    //   });
-    // } else {
-    //   console.log(successMessage);
-    // }
+    // $q.notify({
+    //   type: "positive",
+    //   message: successMessage,
+    // });
 
     router.push("/forms");
   } catch (error) {
-    const errorMessage =
-      route.params.id && route.params.id !== "create"
-        ? "Failed to update form"
-        : "Failed to create form";
+    const errorMessage = isEditing.value
+      ? "Failed to update form"
+      : "Failed to create form";
 
-    if ($q && $q.notify) {
-      $q.notify({
-        type: "negative",
-        message: errorMessage,
+    console.error(errorMessage, error);
+    $q.notify({
+      type: "negative",
+      message: errorMessage,
+    });
+  } finally {
+    formBuilderStore.setLoading(false);
+  }
+};
+
+const updateFormFields = async (formId: string) => {
+  // Get existing fields to compare
+  const existingFields = customFormStore.currentFormFields;
+  const currentFields = formBuilderStore.formFields;
+
+  // Create maps for easier comparison
+  const existingFieldsMap = new Map(
+    existingFields.map((field) => [field.field_key, field])
+  );
+  const newFieldsMap = new Map(
+    currentFields.map((field) => [field.field_key, field])
+  );
+
+  // Delete fields that are no longer present
+  for (const existingField of existingFields) {
+    if (!newFieldsMap.has(existingField.field_key) && existingField.id) {
+      await customFormStore.deleteFormField(existingField.id);
+    }
+  }
+
+  // Update or create fields
+  for (const field of currentFields) {
+    const existingField = existingFieldsMap.get(field.field_key);
+
+    if (existingField?.id) {
+      // Update existing field
+      await customFormStore.updateFormField(existingField.id, {
+        ...field,
+        form_id: formId,
+        id: existingField.id,
       });
     } else {
-      console.error(errorMessage, error);
+      // Create new field
+      await customFormStore.createFormField({
+        ...field,
+        form_id: formId,
+      });
     }
   }
 };
 
-const loadForm = async () => {
-  if (route.params.id && route.params.id !== "create") {
-    try {
-      // Check if form exists in store first
-      let form = formStore.getFormById(route.params.id as string);
-
-      if (!form) {
-        // Fetch forms if not in store
-        await formStore.fetchForms();
-        form = formStore.getFormById(route.params.id as string);
-      }
-
-      if (form) {
-        // Populate form data for editing
-        // Object.assign(formBuilderStore.formData, {
-        Object.assign(formData, {
-          name: form.name,
-          description: form.description || "",
-          is_active: form.is_active,
-        });
-
-        // Set current form in store
-        formStore.setCurrentForm(form);
-
-        // Load form fields
-        await formStore.fetchFormFields(form.id!);
-        formBuilderStore.formFields = [...formStore.currentFormFields];
-      } else {
-        // Form not found, redirect to forms list
-        if ($q && $q.notify) {
-          $q.notify({
-            type: "negative",
-            message: "Form not found",
-          });
-        }
-        router.push("/forms");
-      }
-    } catch (error) {
-      console.error("Error loading form:", error);
-      if ($q && $q.notify) {
-        $q.notify({
-          type: "negative",
-          message: "Failed to load form",
-        });
-      }
-    }
+const createFormFields = async (formId: string) => {
+  for (const field of formBuilderStore.formFields) {
+    await customFormStore.createFormField({
+      ...field,
+      form_id: formId,
+    });
   }
 };
 
@@ -559,34 +279,30 @@ const loadForm = async () => {
 onMounted(async () => {
   try {
     await loadForm();
-    resetCurrentField();
   } catch (error) {
     console.error("Failed to initialize form builder:", error);
-    if ($q && $q.notify) {
-      $q.notify({
-        type: "negative",
-        message: "Failed to load form builder",
-      });
-    }
+    $q.notify({
+      type: "negative",
+      message: "Failed to load form builder",
+    });
   }
+});
+
+// Cleanup on component unmount
+onBeforeUnmount(() => {
+  formBuilderStore.clearForm();
 });
 </script>
 
 <style scoped>
-.field-card {
-  transition: all 0.3s ease;
+.q-page {
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
-.field-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.drag-handle {
-  cursor: grab;
-}
-
-.drag-handle:active {
-  cursor: grabbing;
+@media (max-width: 768px) {
+  .row {
+    flex-direction: column;
+  }
 }
 </style>
