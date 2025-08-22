@@ -155,31 +155,9 @@
           />
         </div>
       </div>
+
       <!-- Right Panel: Live Preview -->
-      <div class="col-md-4 col-12">
-        <q-card sticky>
-          <q-card-section>
-            <div class="text-h6">Live Preview</div>
-            <q-separator class="q-my-md" />
-
-            <div
-              v-if="formFields.length === 0"
-              class="text-center text-grey-6 q-py-xl"
-            >
-              <q-icon name="preview" size="32px" class="q-mb-md" />
-              <div>Add fields to see preview</div>
-            </div>
-
-            <CustomFormRenderer
-              v-else
-              :fields="formFields"
-              :form-data="previewData"
-              @update:form-data="previewData = $event"
-              preview-mode
-            />
-          </q-card-section>
-        </q-card>
-      </div>
+      <PreviewForm :fields="formFields" />
     </div>
 
     <!-- TODO: create septate component of this dialog -->
@@ -371,18 +349,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, nextTick } from "vue";
-import { useRouter, useRoute } from "vue-router";
 import { useQuasar } from "quasar";
+import PreviewForm from "src/components/form/PreviewForm.vue";
+import CustomHeader from "src/components/ui/CustomHeader.vue";
+import { fieldTypeOptions, validationTypeOptions } from "src/constants/form";
 import {
   CustomForm,
   FormField,
   useCustomFormStore,
 } from "src/stores/customFormStore";
-import CustomFormRenderer from "src/components/form/CustomFormRenderer.vue";
-import CustomHeader from "src/components/ui/CustomHeader.vue";
 import { getFieldTypeIcon } from "src/utils/form";
-import { fieldTypeOptions, validationTypeOptions } from "src/constants/form";
+import { computed, onMounted, reactive, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
 
 const router = useRouter();
 const route = useRoute();
@@ -397,10 +375,10 @@ if (!$q || !$q.notify) {
 // Refs
 const formRef = ref();
 const fieldFormRef = ref();
+// TODO: move below variable in to formBuild store
 const formFields = ref<FormField[]>([]);
 const showAddFieldDialog = ref(false);
 const editingField = ref<FormField | null>(null);
-const previewData = ref<Record<string, any>>({});
 
 // Reactive data
 const formData = reactive<Partial<CustomForm>>({
