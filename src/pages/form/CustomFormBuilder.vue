@@ -14,42 +14,7 @@
       <!-- Left Panel: Form Builder -->
       <div class="col-lg-8 col-md-7 col-12">
         <!-- Form Basic Info -->
-        <!-- <FormBasicInfo :title="pageTitle" ref="basicInfoRef" /> -->
-        <q-card>
-          <q-card-section>
-            <div class="text-h6">{{ pageTitle }}</div>
-
-            <q-form @submit="saveForm" ref="basicInfoRef">
-              <div class="row q-gutter-md q-mb-md">
-                <div class="col">
-                  <q-input
-                    v-model="formBuilderStore.formData.name"
-                    label="Form Name"
-                    outlined
-                    dense
-                    :rules="[(val) => !!val || 'Form name is required']"
-                  />
-                </div>
-                <div class="col">
-                  <q-toggle
-                    v-model="formBuilderStore.formData.is_active"
-                    label="Active"
-                    color="primary"
-                  />
-                </div>
-              </div>
-
-              <q-input
-                v-model="formBuilderStore.formData.description"
-                label="Form Description"
-                type="textarea"
-                outlined
-                dense
-                rows="2"
-              />
-            </q-form>
-          </q-card-section>
-        </q-card>
+        <FormBasicInfo :title="pageTitle" ref="basicInfoRef" />
 
         <!-- Form Fields List -->
         <FormFieldsList />

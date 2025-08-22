@@ -4,20 +4,21 @@
     <q-card-section>
       <div class="text-h6">{{ title }}</div>
 
-      <q-form @submit="handleSubmit">
+      <q-form ref="formRef" @submit.prevent="handleSubmit">
         <div class="row q-gutter-md q-mb-md">
           <div class="col">
             <q-input
-              v-model="formData.name"
+              v-model="formBuilderStore.formData.name"
               label="Form Name"
               outlined
               dense
-              :rules="[(val) => !!val || 'Form name is required']"
+              :rules="nameRules"
+              lazy-rules
             />
           </div>
           <div class="col-auto">
             <q-toggle
-              v-model="formData.is_active"
+              v-model="formBuilderStore.formData.is_active"
               label="Active"
               color="primary"
             />
@@ -25,7 +26,7 @@
         </div>
 
         <q-input
-          v-model="formData.description"
+          v-model="formBuilderStore.formData.description"
           label="Form Description"
           type="textarea"
           outlined
@@ -38,35 +39,62 @@
 </template>
 
 <script setup lang="ts">
-import { storeToRefs } from "pinia";
 import { useFormBuilderStore } from "src/stores/formBuilder";
-import { Ref, ref } from "vue";
+import { ref, nextTick } from "vue";
 
 interface Props {
   title: string;
-  // formRef: any;
-  // onSubmit: () => Promise<void>; // parent-provided submit handler
 }
 
-const props = defineProps<Props>();
+defineProps<Props>();
 
 const formBuilderStore = useFormBuilderStore();
-const { formData } = storeToRefs(formBuilderStore);
+const formRef = ref<any>(null);
 
-const formRef = ref();
+// Validation rules
+const nameRules = [
+  (val: string) => (val && val.trim().length > 0) || "Form name is required",
+  (val: string) =>
+    (val && val.trim().length <= 255) ||
+    "Form name must be less than 255 characters",
+];
 
-const handleSubmit = () => {
+const handleSubmit = (event?: Event) => {
+  if (event) {
+    event.preventDefault();
+  }
   // This will be handled by the parent component
-  // props.onSubmit();
   console.log("Form submitted");
 };
 
-const validate = async () => {
-  if (!formRef.value) return false;
-  return await formRef.value.validate();
+const validate = async (): Promise<boolean> => {
+  await nextTick(); // Ensure DOM is updated
+
+  if (!formRef.value) {
+    console.warn("Form ref is null");
+    return false;
+  }
+
+  try {
+    const result = await formRef.value.validate();
+    console.log("Form validation result:", result);
+    return result;
+  } catch (error) {
+    console.error("Form validation error:", error);
+    return false;
+  }
 };
 
+const resetValidation = () => {
+  if (formRef.value) {
+    formRef.value.resetValidation();
+  }
+};
+
+// Expose methods to parent component
 defineExpose({
   validate,
+  resetValidation,
+  formRef,
 });
 </script>
