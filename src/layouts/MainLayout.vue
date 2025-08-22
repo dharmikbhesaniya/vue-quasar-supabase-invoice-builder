@@ -47,6 +47,11 @@ const linksList: EssentialLinkProps[] = [
     routeName: "Dashboard",
   },
   {
+    title: "New Invoice",
+    icon: "add_circle",
+    routeName: "NewInvoice",
+  },
+  {
     title: "Templates",
     icon: "design_services",
     routeName: "Templates",
