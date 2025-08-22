@@ -1,6 +1,25 @@
 <template>
   <q-card>
     <q-card-section>
+      <GlobalFilter
+        v-model="filters"
+        :select-options="statusOptions"
+        select-label="Status"
+      >
+        <q-input
+          v-model="filters.author"
+          dense
+          outlined
+          placeholder="Author"
+          debounce="300"
+          class="filter-input"
+        />
+      </GlobalFilter>
+    </q-card-section>
+
+    <q-separator class="q-my-md" />
+
+    <q-card-section>
       <div class="row q-gutter-sm">
         <TemplateCard
           v-for="template in templates"
@@ -40,6 +59,7 @@ import { InvoiceTemplate } from "src/types/invoice";
 import TemplateUploader from "src/components/template/TemplateUploader.vue";
 import PreviewDialog from "../PreviewDialog.vue";
 import TemplateCard from "./TemplateCard.vue";
+import GlobalFilter from "../ui/GlobalFilter.vue";
 
 const $q = useQuasar();
 const templateStore = useTemplateStore();
@@ -52,6 +72,19 @@ const loadingPreview = ref(false);
 
 const templates = computed(() => templateStore.templates);
 const selectedTemplate = computed(() => templateStore.selectedTemplate);
+
+const statusOptions = [
+  { label: "Active", value: "Active" },
+  { label: "Inactive", value: "Inactive" },
+  { label: "Draft", value: "Draft" },
+];
+
+const filters = ref({
+  search: "",
+  option: null,
+  author: "",
+  date: null,
+});
 
 const selectTemplate = (template: InvoiceTemplate) => {
   templateStore.selectTemplate(template);
