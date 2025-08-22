@@ -4,3 +4,10 @@ make form page proper
 form Live Preview are not working
 
 how to baind table in custom form
+
+
+component -----------------------------
+FieldOptionsEditor
+FormFieldItem
+FormFieldList
+ValidationRulesEditor
