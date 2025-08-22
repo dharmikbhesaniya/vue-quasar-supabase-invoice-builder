@@ -14,11 +14,11 @@
       <!-- Left Panel: Form Builder -->
 
       <div class="col-md-8 col-12">
+        <!-- <FormBasicInfo title="test" :on-submit="saveForm" formRef="formRef" /> -->
         <q-card>
           <q-card-section>
             <div class="text-h6">{{ pageTitle }}</div>
 
-            <!-- Form Basic Info -->
             <q-form @submit="saveForm" ref="formRef">
               <div class="row q-gutter-md q-mb-md">
                 <div class="col">
@@ -50,6 +50,8 @@
             </q-form>
           </q-card-section>
         </q-card>
+
+
         <!-- Form Fields Builder -->
         <q-card class="q-mt-md">
           <q-card-section>
@@ -161,196 +163,15 @@
       <PreviewForm :fields="formBuilderStore.formFields" />
     </div>
 
-    <!-- TODO: create septate component of this dialog -->
     <!-- Add/Edit Field Dialog -->
     <AddEditFieldDialog />
-    <!-- <q-dialog v-model="showAddFieldDialog" persistent>
-      <q-card style="min-width: 500px">
-        <q-card-section>
-          <div class="text-h6">
-            {{ editingField ? "Edit Field" : "Add Field" }}
-          </div>
-        </q-card-section>
-
-        <q-card-section>
-          <q-form @submit="addField" ref="fieldFormRef">
-            <div class="row q-gutter-md">
-              <div class="col">
-                <q-input
-                  v-model="currentField.field_name"
-                  label="Field Name"
-                  outlined
-                  dense
-                  :rules="[(val) => !!val || 'Field name is required']"
-                />
-              </div>
-              <div class="col">
-                <q-input
-                  v-model="currentField.field_key"
-                  label="Field Key"
-                  outlined
-                  dense
-                  hint="Used to store data (e.g., email, phone)"
-                  :rules="[
-                    (val) => !!val || 'Field key is required',
-                    (val) =>
-                      /^[a-zA-Z][a-zA-Z0-9_]*$/.test(val) ||
-                      'Key must start with letter and contain only letters, numbers, and underscores',
-                  ]"
-                />
-              </div>
-            </div>
-
-            <q-select
-              v-model="currentField.field_type"
-              :options="fieldTypeOptions"
-              label="Field Type"
-              outlined
-              dense
-              emit-value
-              map-options
-              class="q-mt-md"
-            />
-
-            <q-input
-              v-model="currentField.placeholder"
-              label="Placeholder"
-              outlined
-              dense
-              class="q-mt-md"
-            />
-
-            <div class="row items-center q-mt-md">
-              <q-toggle
-                v-model="currentField.is_required"
-                label="Required Field"
-                color="primary"
-              />
-            </div>
-
-            <div
-              v-if="
-                ['select', 'radio', 'checkbox'].includes(
-                  currentField.field_type as string
-                )
-              "
-              class="q-mt-md"
-            >
-              <div class="text-subtitle2 q-mb-sm">Options</div>
-              <div
-                v-for="(option, index) in currentField.options"
-                :key="index"
-                class="row q-gutter-sm q-mb-sm"
-              >
-                <div class="col">
-                  <q-input
-                    v-model="option.label"
-                    label="Label"
-                    outlined
-                    dense
-                  />
-                </div>
-                <div class="col">
-                  <q-input
-                    v-model="option.value"
-                    label="Value"
-                    outlined
-                    dense
-                  />
-                </div>
-                <q-btn
-                  flat
-                  round
-                  icon="remove"
-                  size="sm"
-                  @click="removeOption(index)"
-                  color="negative"
-                />
-              </div>
-              <q-btn
-                flat
-                icon="add"
-                label="Add Option"
-                @click="addOption"
-                color="primary"
-                size="sm"
-              />
-            </div>
-
-            <div class="q-mt-md">
-              <div class="text-subtitle2 q-mb-sm">Validation Rules</div>
-              <div
-                v-for="(rule, index) in currentField.validation_rules"
-                :key="index"
-                class="row q-gutter-sm q-mb-sm items-center"
-              >
-                <div class="col-3">
-                  <q-select
-                    v-model="rule.type"
-                    :options="validationTypeOptions"
-                    outlined
-                    dense
-                    emit-value
-                    map-options
-                  />
-                </div>
-                <div class="col-3" v-if="['min', 'max'].includes(rule.type)">
-                  <q-input
-                    v-model="rule.value"
-                    type="number"
-                    outlined
-                    dense
-                    label="Value"
-                  />
-                </div>
-                <div class="col-3" v-else-if="rule.type === 'pattern'">
-                  <q-input
-                    v-model="rule.value"
-                    outlined
-                    dense
-                    label="Pattern"
-                  />
-                </div>
-                <div class="col">
-                  <q-input
-                    v-model="rule.message"
-                    outlined
-                    dense
-                    label="Error Message"
-                  />
-                </div>
-                <q-btn
-                  flat
-                  round
-                  icon="remove"
-                  size="sm"
-                  @click="removeValidationRule(index)"
-                  color="negative"
-                />
-              </div>
-              <q-btn
-                flat
-                icon="add"
-                label="Add Rule"
-                @click="addValidationRule"
-                color="primary"
-                size="sm"
-              />
-            </div>
-          </q-form>
-        </q-card-section>
-
-        <q-card-actions align="right">
-          <q-btn flat label="Cancel" @click="cancelFieldEdit" />
-          <q-btn color="primary" label="Save Field" @click="addField" />
-        </q-card-actions>
-      </q-card> </q-dialog> -->
   </q-page>
 </template>
 
 <script setup lang="ts">
 import { useQuasar } from "quasar";
 import AddEditFieldDialog from "src/components/form/AddEditFieldDialog.vue";
+import FormBasicInfo from "src/components/form/FormBasicInfo.vue";
 import PreviewForm from "src/components/form/PreviewForm.vue";
 import CustomHeader from "src/components/ui/CustomHeader.vue";
 import { useCustomFormStore } from "src/stores/customFormStore";
@@ -570,6 +391,7 @@ const removeValidationRule = (index: number) => {
 
 const saveForm = async () => {
   if (!formRef.value) return;
+  console.log("hey there --->");
 
   const isValid = await formRef.value.validate();
   if (!isValid) return;
@@ -698,6 +520,7 @@ const loadForm = async () => {
 
       if (form) {
         // Populate form data for editing
+        // Object.assign(formBuilderStore.formData, {
         Object.assign(formData, {
           name: form.name,
           description: form.description || "",
