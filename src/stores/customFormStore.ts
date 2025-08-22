@@ -55,6 +55,7 @@ export const useCustomFormStore = defineStore("customForm", () => {
   // State
   const forms = ref<CustomForm[]>([]);
   const currentForm = ref<CustomForm | null>(null);
+  const selectedForm = ref<CustomForm>();
   const currentFormFields = ref<FormField[]>([]);
   const formSubmissions = ref<FormSubmission[]>([]);
   const loading = ref(false);
@@ -357,6 +358,10 @@ export const useCustomFormStore = defineStore("customForm", () => {
     }
   };
 
+    const selectForm = (form: CustomForm) => {
+      selectedForm.value = form;
+    };
+
   const resetStore = () => {
     forms.value = [];
     currentForm.value = null;
@@ -370,6 +375,7 @@ export const useCustomFormStore = defineStore("customForm", () => {
     // State
     forms,
     currentForm,
+    selectedForm,
     currentFormFields,
     formSubmissions,
     loading,
@@ -379,6 +385,7 @@ export const useCustomFormStore = defineStore("customForm", () => {
     activeforms,
 
     // Actions
+    selectForm,
     fetchForms,
     createForm,
     updateForm,

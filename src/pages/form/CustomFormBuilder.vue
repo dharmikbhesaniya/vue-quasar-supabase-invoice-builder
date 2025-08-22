@@ -709,18 +709,18 @@ const saveForm = async () => {
       }
     }
 
-    const successMessage = isEditing
-      ? "Form updated successfully!"
-      : "Form created successfully!";
+    // const successMessage = isEditing
+    //   ? "Form updated successfully!"
+    //   : "Form created successfully!";
 
-    if ($q && $q.notify) {
-      $q.notify({
-        type: "positive",
-        message: successMessage,
-      });
-    } else {
-      console.log(successMessage);
-    }
+    // if ($q && $q.notify) {
+    //   $q.notify({
+    //     type: "positive",
+    //     message: successMessage,
+    //   });
+    // } else {
+    //   console.log(successMessage);
+    // }
 
     router.push("/forms");
   } catch (error) {

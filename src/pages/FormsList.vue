@@ -9,6 +9,7 @@
       :on-button-click="goToCreateSurvey"
     />
 
+    <!-- TODO: use there global filter component for search and filter -->
     <!-- Search and Filters -->
     <q-card flat class="q-mb-lg">
       <q-card-section>
@@ -82,7 +83,12 @@
         :key="index"
         class="col-12 col-md-6 col-lg-4"
       >
-        <q-card class="form-card cursor-pointer" @click="viewForm(form)">
+        <!-- TODO: remove editForm on click and handel onclick with preview -->
+        <q-card
+          class="form-card cursor-pointer"
+          :class="{ selected: selectedForm?.id === form.id }"
+          @click="selectDefaultForm(form)"
+        >
           <q-card-section>
             <div class="row items-center justify-between q-mb-sm">
               <q-chip
@@ -262,6 +268,8 @@ const sortBy = ref("created_at_desc");
 const loading = computed(() => formStore.loading);
 const forms = computed(() => formStore.forms);
 
+const selectedForm = computed(() => formStore.selectedForm);
+
 const statusOptions = [
   { label: "Active", value: true },
   { label: "Inactive", value: false },
@@ -335,9 +343,14 @@ const recentSubmissions = computed(() => {
 });
 
 // Methods
+const selectDefaultForm = (form: CustomForm) => {
+  formStore.selectForm(form);
+};
+
 const goToCreateSurvey = () => {
   router.push("/forms/create");
 };
+
 const formatDate = (dateString?: string) => {
   if (!dateString) return "Unknown";
   return date.formatDate(new Date(dateString), "MMM DD, YYYY");
@@ -452,6 +465,11 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.selected {
+  border-color: var(--q-primary);
+  background-color: rgba(25, 118, 210, 0.05);
+}
+
 .form-card {
   transition: all 0.3s ease;
   border-radius: 12px;
