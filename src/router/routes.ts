@@ -6,6 +6,11 @@ const routes: RouteRecordRaw[] = [
     component: () => import("layouts/MainLayout.vue"),
     children: [
       // { path: "", component: () => import("pages/TodoPage.vue") },
+      {
+        path: "/",
+        component: () => import("pages/TemplatesPage.vue"),
+        name: "Templates",
+      },
       // {
       //   path: "",
       //   component: () => import("pages/DashboardPage.vue"),
@@ -27,11 +32,6 @@ const routes: RouteRecordRaw[] = [
       //   name: "EditInvoice",
       // },
       {
-        path: "/",
-        component: () => import("pages/TemplatesPage.vue"),
-        name: "Templates",
-      },
-      {
         path: "/forms",
         name: "FormsList",
         component: () => import("pages/FormsList.vue"),
@@ -40,7 +40,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: "/forms/create",
         name: "CreateForm",
-        component: () => import("components/form/CustomFormBuilder.vue"),
+        component: () => import("pages/form/CustomFormBuilder.vue"),
         meta: { title: "Create Form" },
       },
       // {

@@ -51,6 +51,16 @@ const linksList: EssentialLinkProps[] = [
     icon: "design_services",
     routeName: "Templates",
   },
+  {
+    title: "Forms List",
+    icon: "design_services",
+    routeName: "FormsList",
+  },
+  {
+    title: "Create Form",
+    icon: "design_services",
+    routeName: "CreateForm",
+  },
 ];
 
 const leftDrawerOpen = ref(false);

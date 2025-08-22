@@ -1,13 +1,32 @@
 <!-- components/CustomFormBuilder.vue -->
 <template>
   <q-page padding>
+    <!-- Breadcrumb Navigation -->
+    <div class="row items-center q-mb-lg">
+      <q-btn
+        flat
+        round
+        icon="arrow_back"
+        @click="$router.push('/forms')"
+        class="q-mr-sm"
+      />
+      <div>
+        <div class="text-h5">{{ pageTitle }}</div>
+        <div class="text-grey-6">
+          {{
+            isEditing ? "Update your existing form" : "Create a new custom form"
+          }}
+        </div>
+      </div>
+    </div>
+
     <div class="row q-gutter-md">
       <!-- Left Panel: Form Builder -->
 
       <div class="col-md-8 col-12">
         <q-card>
           <q-card-section>
-            <div class="text-h6">Form Builder</div>
+            <div class="text-h6">{{ pageTitle }}</div>
 
             <!-- Form Basic Info -->
             <q-form @submit="saveForm" ref="formRef">
@@ -140,7 +159,7 @@
           <q-btn
             color="primary"
             size="lg"
-            label="Save Form"
+            :label="saveButtonText"
             @click="saveForm"
             :loading="loading"
             class="q-px-xl"
@@ -364,18 +383,22 @@
 import { ref, reactive, computed, onMounted, nextTick } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useQuasar } from "quasar";
-import CustomFormRenderer from "./CustomFormRenderer.vue";
-import draggable from "vuedraggable";
 import {
   CustomForm,
   FormField,
   useCustomFormStore,
 } from "src/stores/customFormStore";
+import CustomFormRenderer from "src/components/form/CustomFormRenderer.vue";
 
 const router = useRouter();
 const route = useRoute();
 const $q = useQuasar();
 const formStore = useCustomFormStore();
+
+// Check if $q is properly initialized
+if (!$q || !$q.notify) {
+  console.error("Quasar not properly initialized");
+}
 
 // Refs
 const formRef = ref();
@@ -407,6 +430,15 @@ const currentField = reactive<Partial<FormField>>({
 
 // Computed
 const loading = computed(() => formStore.loading);
+const isEditing = computed(
+  () => route.params.id && route.params.id !== "create"
+);
+const pageTitle = computed(() =>
+  isEditing.value ? "Edit Form" : "Create Form"
+);
+const saveButtonText = computed(() =>
+  isEditing.value ? "Update Form" : "Create Form"
+);
 
 // Field type options
 const fieldTypeOptions = [
@@ -461,10 +493,13 @@ const resetCurrentField = () => {
 
 const editField = (field: FormField) => {
   editingField.value = field;
+  // Deep copy the field to avoid direct mutation
   Object.assign(currentField, {
     ...field,
-    options: field.options ? [...field.options] : [],
-    validation_rules: field.validation_rules ? [...field.validation_rules] : [],
+    options: field.options ? JSON.parse(JSON.stringify(field.options)) : [],
+    validation_rules: field.validation_rules
+      ? JSON.parse(JSON.stringify(field.validation_rules))
+      : [],
   });
   showAddFieldDialog.value = true;
 };
@@ -481,19 +516,38 @@ const addField = async () => {
   const isValid = await fieldFormRef.value.validate();
   if (!isValid) return;
 
-  // Check for duplicate field keys
+  // Check for duplicate field keys (excluding current field if editing)
   const existingFieldIndex = formFields.value.findIndex(
     (f: { field_key: any }) =>
       f.field_key === currentField.field_key && f !== editingField.value
   );
 
   if (existingFieldIndex !== -1) {
-    $q.notify({
-      type: "negative",
-      message: "Field key must be unique",
-    });
+    console.error("Field key must be unique");
+    if ($q && $q.notify) {
+      $q.notify({
+        type: "negative",
+        message: "Field key must be unique",
+      });
+    }
     return;
   }
+
+  // Create a clean field object
+  const fieldData = {
+    field_name: currentField.field_name!,
+    field_key: currentField.field_key!,
+    field_type: currentField.field_type!,
+    placeholder: currentField.placeholder || "",
+    is_required: currentField.is_required || false,
+    options: currentField.options
+      ? JSON.parse(JSON.stringify(currentField.options))
+      : [],
+    validation_rules: currentField.validation_rules
+      ? JSON.parse(JSON.stringify(currentField.validation_rules))
+      : [],
+    sort_order: currentField.sort_order || formFields.value.length,
+  };
 
   if (editingField.value) {
     // Update existing field
@@ -501,33 +555,59 @@ const addField = async () => {
       (f: { field_key: any }) => f.field_key === editingField.value!.field_key
     );
     if (index !== -1) {
-      formFields.value[index] = { ...currentField } as FormField;
+      // Preserve the original field's ID and other metadata if it exists
+      formFields.value[index] = {
+        ...fieldData,
+        id: editingField.value.id,
+        form_id: editingField.value.form_id,
+        created_at: editingField.value.created_at,
+        // updated_at: editingField.value.updated_at,
+      } as FormField;
     }
   } else {
     // Add new field
-    formFields.value.push({ ...currentField } as FormField);
+    formFields.value.push(fieldData as FormField);
   }
+
+  // Update field order
+  updateFieldsOrder();
 
   cancelFieldEdit();
 
-  $q.notify({
-    type: "positive",
-    message: editingField.value
-      ? "Field updated successfully"
-      : "Field added successfully",
-  });
+  const message = editingField.value
+    ? "Field updated successfully"
+    : "Field added successfully";
+
+  if ($q && $q.notify) {
+    $q.notify({
+      type: "positive",
+      message: message,
+    });
+  } else {
+    console.log(message);
+  }
 };
 
 const deleteField = (index: number) => {
-  $q.dialog({
+  const dialogOptions = {
     title: "Confirm Delete",
     message: "Are you sure you want to delete this field?",
     cancel: true,
     persistent: true,
-  }).onOk(() => {
-    formFields.value.splice(index, 1);
-    updateFieldsOrder();
-  });
+  };
+
+  if ($q && $q.dialog) {
+    $q.dialog(dialogOptions).onOk(() => {
+      formFields.value.splice(index, 1);
+      updateFieldsOrder();
+    });
+  } else {
+    // Fallback to native confirm
+    if (confirm("Are you sure you want to delete this field?")) {
+      formFields.value.splice(index, 1);
+      updateFieldsOrder();
+    }
+  }
 };
 
 const updateFieldsOrder = () => {
@@ -561,43 +641,74 @@ const saveForm = async () => {
   if (!isValid) return;
 
   if (formFields.value.length === 0) {
-    $q.notify({
-      type: "warning",
-      message: "Please add at least one field to the form",
-    });
+    const warningMessage = "Please add at least one field to the form";
+    if ($q && $q.notify) {
+      $q.notify({
+        type: "warning",
+        message: warningMessage,
+      });
+    } else {
+      alert(warningMessage);
+    }
     return;
   }
 
   try {
     let savedForm: CustomForm;
+    const isEditing = route.params.id && route.params.id !== "create";
 
-    if (route.params.id) {
+    if (isEditing) {
       // Update existing form
-      savedForm = await formStore.updateForm(
-        route.params.id as string,
-        formData
+      savedForm = await formStore.updateForm(route.params.id as string, {
+        name: formData.name!,
+        description: formData.description || "",
+        is_active: formData.is_active!,
+      });
+
+      // Get existing fields to compare
+      const existingFields = formStore.currentFormFields;
+
+      // Create maps for easier comparison
+      const existingFieldsMap = new Map(
+        existingFields.map((field) => [field.field_key, field])
+      );
+      const newFieldsMap = new Map(
+        formFields.value.map((field) => [field.field_key, field])
       );
 
-      // Update form fields
-      // First, delete existing fields
-      for (const field of formStore.currentFormFields) {
-        if (field.id) {
-          await formStore.deleteFormField(field.id);
+      // Delete fields that are no longer present
+      for (const existingField of existingFields) {
+        if (!newFieldsMap.has(existingField.field_key) && existingField.id) {
+          await formStore.deleteFormField(existingField.id);
         }
       }
 
-      // Then add new fields
+      // Update or create fields
       for (const field of formFields.value) {
-        await formStore.createFormField({
-          ...field,
-          form_id: savedForm.id!,
-        });
+        const existingField = existingFieldsMap.get(field.field_key);
+
+        if (existingField && existingField.id) {
+          // Update existing field
+          await formStore.updateFormField(existingField.id, {
+            ...field,
+            form_id: savedForm.id!,
+            id: existingField.id,
+          });
+        } else {
+          // Create new field
+          await formStore.createFormField({
+            ...field,
+            form_id: savedForm.id!,
+          });
+        }
       }
     } else {
       // Create new form
-      savedForm = await formStore.createForm(
-        formData as Omit<CustomForm, "id" | "created_at" | "updated_at">
-      );
+      savedForm = await formStore.createForm({
+        name: formData.name!,
+        description: formData.description || "",
+        is_active: formData.is_active!,
+      });
 
       // Add form fields
       for (const field of formFields.value) {
@@ -608,35 +719,99 @@ const saveForm = async () => {
       }
     }
 
-    $q.notify({
-      type: "positive",
-      message: "Form saved successfully!",
-    });
+    const successMessage = isEditing
+      ? "Form updated successfully!"
+      : "Form created successfully!";
+
+    if ($q && $q.notify) {
+      $q.notify({
+        type: "positive",
+        message: successMessage,
+      });
+    } else {
+      console.log(successMessage);
+    }
 
     router.push("/forms");
   } catch (error) {
-    $q.notify({
-      type: "negative",
-      message: "Failed to save form",
-    });
+    const errorMessage =
+      route.params.id && route.params.id !== "create"
+        ? "Failed to update form"
+        : "Failed to create form";
+
+    if ($q && $q.notify) {
+      $q.notify({
+        type: "negative",
+        message: errorMessage,
+      });
+    } else {
+      console.error(errorMessage, error);
+    }
   }
 };
 
 const loadForm = async () => {
-  if (route.params.id) {
-    const form = formStore.getFormById(route.params.id as string);
-    if (form) {
-      Object.assign(formData, form);
-      await formStore.fetchFormFields(form.id!);
-      formFields.value = [...formStore.currentFormFields];
+  if (route.params.id && route.params.id !== "create") {
+    try {
+      // Check if form exists in store first
+      let form = formStore.getFormById(route.params.id as string);
+
+      if (!form) {
+        // Fetch forms if not in store
+        await formStore.fetchForms();
+        form = formStore.getFormById(route.params.id as string);
+      }
+
+      if (form) {
+        // Populate form data for editing
+        Object.assign(formData, {
+          name: form.name,
+          description: form.description || "",
+          is_active: form.is_active,
+        });
+
+        // Set current form in store
+        formStore.setCurrentForm(form);
+
+        // Load form fields
+        await formStore.fetchFormFields(form.id!);
+        formFields.value = [...formStore.currentFormFields];
+      } else {
+        // Form not found, redirect to forms list
+        if ($q && $q.notify) {
+          $q.notify({
+            type: "negative",
+            message: "Form not found",
+          });
+        }
+        router.push("/forms");
+      }
+    } catch (error) {
+      console.error("Error loading form:", error);
+      if ($q && $q.notify) {
+        $q.notify({
+          type: "negative",
+          message: "Failed to load form",
+        });
+      }
     }
   }
 };
 
 // Lifecycle
 onMounted(async () => {
-  await loadForm();
-  resetCurrentField();
+  try {
+    await loadForm();
+    resetCurrentField();
+  } catch (error) {
+    console.error("Failed to initialize form builder:", error);
+    if ($q && $q.notify) {
+      $q.notify({
+        type: "negative",
+        message: "Failed to load form builder",
+      });
+    }
+  }
 });
 </script>
 
