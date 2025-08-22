@@ -2,23 +2,12 @@
 <template>
   <q-page padding>
     <!-- Breadcrumb Navigation -->
-    <div class="row items-center q-mb-lg">
-      <q-btn
-        flat
-        round
-        icon="arrow_back"
-        @click="$router.push('/forms')"
-        class="q-mr-sm"
-      />
-      <div>
-        <div class="text-h5">{{ pageTitle }}</div>
-        <div class="text-grey-6">
-          {{
-            isEditing ? "Update your existing form" : "Create a new custom form"
-          }}
-        </div>
-      </div>
-    </div>
+    <CustomHeader
+      :back-btn="true"
+      :title="pageTitle"
+      :subtitle="
+        isEditing ? 'Update your existing form' : 'Create a new custom form'
+      " />
 
     <div class="row q-gutter-md">
       <!-- Left Panel: Form Builder -->
@@ -389,6 +378,7 @@ import {
   useCustomFormStore,
 } from "src/stores/customFormStore";
 import CustomFormRenderer from "src/components/form/CustomFormRenderer.vue";
+import CustomHeader from "src/components/ui/CustomHeader.vue";
 
 const router = useRouter();
 const route = useRoute();

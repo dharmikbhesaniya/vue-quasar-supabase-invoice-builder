@@ -1,11 +1,21 @@
 <template>
   <div class="row items-center justify-between q-mb-lg">
     <!-- Title and Subtitle -->
-    <div>
-      <h4 class="q-my-none">{{ title }}</h4>
-      <p class="text-grey-6 q-mb-none">
-        {{ subtitle }}
-      </p>
+    <div class="row items-center gap-2">
+      <q-btn
+        v-if="backBtn"
+        flat
+        round
+        icon="arrow_back"
+        @click="$router.back()"
+        class="q-mr-sm"
+      />
+      <div>
+        <h4 class="q-my-none">{{ title }}</h4>
+        <p class="text-grey-6 q-mb-none">
+          {{ subtitle }}
+        </p>
+      </div>
     </div>
 
     <!-- Actions (Slot + Button) -->
@@ -30,6 +40,10 @@
 defineOptions({ name: "CustomHeader" });
 
 defineProps({
+  backBtn: {
+    type: Boolean,
+    default: false,
+  },
   title: {
     type: String,
     default: "Custom Forms",
