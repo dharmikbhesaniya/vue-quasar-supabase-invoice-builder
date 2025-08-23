@@ -5,7 +5,6 @@ const routes: RouteRecordRaw[] = [
     path: "/",
     component: () => import("layouts/MainLayout.vue"),
     children: [
-      // { path: "", component: () => import("pages/TodoPage.vue") },
       {
         path: "/",
         component: () => import("pages/TemplatesPage.vue"),
@@ -15,34 +14,6 @@ const routes: RouteRecordRaw[] = [
       //   path: "",
       //   component: () => import("pages/DashboardPage.vue"),
       //   name: "Dashboard",
-      // },
-      // {
-      //   path: "/invoices",
-      //   component: () => import("pages/InvoiceListPage.vue"),
-      //   name: "InvoiceList",
-      // },
-      // {
-      //   path: "/invoice/new",
-      //   component: () => import("pages/InvoicePage.vue"),
-      //   name: "NewInvoice",
-      // },
-      // {
-      //   path: "/invoice/edit/:id",
-      //   component: () => import("components/InvoiceEditor.vue"),
-      //   name: "EditInvoice",
-      // },
-      //--------- fo invoice------------
-      // {
-      //   path: "/invoice",
-      //   name: "NewInvoice",
-      //   component: () => import("pages/InvoicePage.vue"),
-      //   meta: { title: "New Invoice" },
-      // },
-      // {
-      //   path: "/invoice/:id",
-      //   name: "EditInvoice",
-      //   component: () => import("pages/InvoicePage.vue"),
-      //   meta: { title: "Edit Invoice" },
       // },
       {
         path: "/invoice/:customerFormId",

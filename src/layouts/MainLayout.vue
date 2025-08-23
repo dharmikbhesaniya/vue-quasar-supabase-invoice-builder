@@ -41,30 +41,25 @@ import { EssentialLinkProps } from "src/types/sidbare";
 import { ref } from "vue";
 
 const linksList: EssentialLinkProps[] = [
-  {
-    title: "Dashboard",
-    icon: "dashboard",
-    routeName: "Dashboard",
-  },
-  {
-    title: "New Invoice",
-    icon: "add_circle",
-    routeName: "NewInvoice",
-  },
+  // {
+  //   title: "Dashboard",
+  //   icon: "dashboard",
+  //   routeName: "Dashboard",
+  // },
+  // {
+  //   title: "All Invoices",
+  //   icon: "receipt",
+  //   routeName: "invoices",
+  // },
   {
     title: "Templates",
     icon: "design_services",
     routeName: "Templates",
   },
   {
-    title: "Forms List",
+    title: "Forms",
     icon: "design_services",
     routeName: "FormsList",
-  },
-  {
-    title: "Create Form",
-    icon: "design_services",
-    routeName: "CreateForm",
   },
 ];
 

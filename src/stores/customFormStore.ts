@@ -339,6 +339,45 @@ export const useCustomFormStore = defineStore("customForm", () => {
     currentFormFields.value = [];
   };
 
+  const updateFormSubmission = async (
+    submissionId: string,
+    formData: Record<string, any>
+  ) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const { data, error: supabaseError } = await supabase
+        .from("form_submissions")
+        .update({
+          form_data: formData,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", submissionId)
+        .select()
+        .single();
+
+      if (supabaseError) throw supabaseError;
+
+      // Update the submission in the local state
+      const index = formSubmissions.value.findIndex(
+        (submission) => submission.id === submissionId
+      );
+      if (index !== -1) {
+        formSubmissions.value[index] = data;
+      }
+
+      return data;
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to update form submission"
+      );
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     // State
     forms,
@@ -372,5 +411,6 @@ export const useCustomFormStore = defineStore("customForm", () => {
 
     setCurrentFormFields,
     resetCurrentForm,
+    updateFormSubmission,
   };
 });

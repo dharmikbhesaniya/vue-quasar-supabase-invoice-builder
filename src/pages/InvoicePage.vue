@@ -4,7 +4,12 @@
       <!-- Left Panel - Form -->
       <div class="col-12 col-md-6">
         <!-- <InvoiceForm /> -->
-        <FormCreateEdit />
+        <FormCreateEdit
+          :customer-form-id="customerFormId"
+          :form-id="formId"
+          @submitted="onFormSubmitted"
+          @back-to-forms="$router.push('/forms')"
+        />
 
         <div class="q-mt-md">
           <TemplateSelector />
@@ -54,11 +59,11 @@ const templateStore = useTemplateStore();
 const customerFormId = computed(() => route.params.customerFormId as string);
 const formId = computed(() => route.params.formId as string | undefined);
 
-// --- Mode detection ---
-const isEditMode = computed(() => !!formId.value);
-const isCreateMode = computed(() => !formId.value);
-
 const saving = ref(false);
+
+const onFormSubmitted = (data: any) => {
+  console.log("Form submitted inside InvoicePage:", data);
+};
 
 const saveInvoice = async () => {
   saving.value = true;

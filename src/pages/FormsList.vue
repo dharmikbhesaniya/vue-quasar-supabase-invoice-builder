@@ -377,7 +377,7 @@ const editForm = (form: CustomForm) => {
 };
 
 const fillForm = (form: CustomForm) => {
-  router.push(`/forms/${form.id}/fill`);
+  router.push(`/invoice/${form.id}`);
 };
 
 const viewSubmissions = (form: CustomForm) => {
